@@ -12,8 +12,6 @@ target/
 *.iml
 *.ipr
 
-.idea
-
 ### Eclipse ###
 .apt_generated
 .classpath
@@ -22,6 +20,7 @@ target/
 .settings
 .springBeans
 .sts4-cache
+.idea
 
 ### NetBeans ###
 /nbproject/private/

@@ -5,4 +5,4 @@ mvn package
 
 mvn clean install
 
-java -jar target/pv221.jar
+java -jar target/spring-pv221.jar

@@ -47,7 +47,7 @@ public class InvoiceController {
             @RequestParam(value = "message", required = false) String message,
             Model model
     ) {
-        List<Invoice> invoices= service.getAllInvoices();
+        var invoices= service.getAllInvoices();
         model.addAttribute("list", invoices);
         model.addAttribute("message", message);
         return "allInvoicesPage";

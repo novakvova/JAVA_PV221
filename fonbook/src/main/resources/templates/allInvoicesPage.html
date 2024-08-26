@@ -29,8 +29,13 @@
                         <td th:text=${ob.name}></td>
                         <td th:text=${ob.location}></td>
                         <td th:text=${ob.amount}></td>
-                        <td><a th:href="@{/invoice/delete(id=${ob.id})}" class= "btn btn-danger">DELETE <i class="fa fa-trash-o" aria-hidden="true"></i></a> |
-                            <a th:href="@{/invoice/edit(id=${ob.id})}" class="btn btn-warning">EDIT <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>
+                        <td>
+                            <a th:href="@{/invoice/delete(id=${ob.id})}" class= "btn btn-danger">DELETE <i class="fa fa-trash-o" aria-hidden="true"></i></a> |
+                            <a th:href="@{/invoice/edit(id=${ob.id})}" class="btn btn-warning">EDIT <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                            <a th:href="@{${ob.image}}" class="btn btn-warning" download>
+                                DOWNLOAD <i class="fa fa-download" aria-hidden="true"></i>
+                            </a>
+                        </td>
                     </tr>
                 </table>
                 <a th:href="@{/invoice/register}" class= "btn btn-success ">Add Invoice <i class="fa fa-plus-square" aria-hidden="true"></i></a>

@@ -1,21 +1,28 @@
 package org.example.storage.impl;
 
+import net.coobird.thumbnailator.Thumbnails;
+import org.example.storage.FileSaveFormat;
 import org.example.storage.StorageProperties;
 import org.example.storage.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
 public class FileSystemStorageService implements StorageService {
 
     private final Path rootLocation;
+
+    private final int [] sizes = {32,150,300,600,1200};
 
     public FileSystemStorageService(StorageProperties properties) {
         this.rootLocation = Paths.get(properties.getLocation());
@@ -28,7 +35,7 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public String saveImage(MultipartFile file) throws IOException {
+    public String saveFile(MultipartFile file) throws IOException {
 
         String randomFileName = java.util.UUID.randomUUID().toString()+"."+getFileExtension(file);
 
@@ -40,6 +47,35 @@ public class FileSystemStorageService implements StorageService {
         return randomFileName;
     }
 
+    @Override
+    public String saveImage(MultipartFile file, FileSaveFormat format) throws IOException {
+        String ext = format.name().toLowerCase();
+        String randomFileName = UUID.randomUUID().toString()+"."+ext;
+
+        var bufferedImage = ImageIO.read(new ByteArrayInputStream(file.getBytes()));
+        for (var size : sizes) {
+            String fileSave = rootLocation.toString()+"/"+size+"_"+randomFileName;
+            Thumbnails.of(bufferedImage).size(size, size).outputFormat(ext).toFile(fileSave);
+        }
+        return randomFileName;
+    }
+
+    @Override
+    public void deleteImage(String imageName) throws IOException {
+        if(imageName != null && !imageName.isEmpty()){
+            for(int size:sizes){
+                String name = size + "_" + imageName;
+                Path imagePath = this.rootLocation.resolve(name).normalize().toAbsolutePath();
+                //Path imagePath = imageDirPath.resolve(name);
+                try {
+                    Files.deleteIfExists(imagePath);
+                }
+                catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
     private String getFileExtension(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         if (originalFilename != null && originalFilename.contains(".")) {
@@ -47,5 +83,4 @@ public class FileSystemStorageService implements StorageService {
         }
         return ""; // Return an empty string if no extension is found
     }
-
 }

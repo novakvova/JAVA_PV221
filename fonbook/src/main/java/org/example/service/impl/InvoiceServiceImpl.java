@@ -30,7 +30,7 @@ public class InvoiceServiceImpl implements IInvoiceService {
             Invoice invoice = new Invoice();
             invoice.setName(model.getName());
             invoice.setAmount(model.getAmount());
-            var imageName = storageService.saveImage(model.getImage());
+            var imageName = storageService.saveFile(model.getImage());
             invoice.setImage(imageName);
             invoice.setLocation(model.getLocation());
             return repo.save(invoice);

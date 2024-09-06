@@ -1,18 +1,65 @@
 import {PhotoIcon, UserCircleIcon} from '@heroicons/react/24/solid'
+import {useForm} from "antd/es/form/Form";
+import {Form, Input, message, Modal, Upload, UploadFile} from "antd";
+import {categoryService} from "../../../services/categoryService.ts";
+import {RcFile, UploadChangeParam} from "antd/es/upload";
+import {useState} from "react";
+
+function PlusOutlined() {
+    return null;
+}
 
 const CategoryCreatePage = () => {
-    const onHandleSubmit = async (e) => {
-        e.preventDefault();
-        console.log("----Submit form----");
-    }
+    const [form] = useForm();
 
-    console.log("----Render app----");
+    const [previewOpen, setPreviewOpen] = useState<boolean>(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [previewTitle, setPreviewTitle] = useState('');
+
+    // const onHandleSubmit = async (e) => {
+    //     e.preventDefault();
+    //
+    //
+    //     console.log("----Submit form----");
+    // }
+    //
+    // console.log("----Render app----");
+
+
+
+    const validateMessages = {
+        required: '${label} is required!',
+        types: {
+            email: '${label} is not a valid email!',
+            number: '${label} is not a valid number!',
+        },
+        number: {
+            range: '${label} must be between ${min} and ${max}',
+        },
+    };
+
+    const onFinish = async (formData: any) => {
+        console.log("form submit", formData);
+        if(!formData.id){
+            const result = await categoryService.create(formData);
+            if(result.status == 200){
+                message.success(`Category ${formData.name} successfully added`)
+            }
+        }
+    };
 
     return (
         <>
             <div className="py-12">
                 <div className="mx-auto max-w-7xl px-6 lg:px-24">
-                    <form onSubmit={onHandleSubmit}>
+                    <Form
+                        form={form}
+                        name="nest-messages"
+                        onFinish={onFinish}
+                        layout={"vertical"}
+                        className=' d-flex flex-column'
+                        validateMessages={validateMessages}
+                    >
                         <p className="text-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                             Створення категорії
                         </p>
@@ -20,60 +67,50 @@ const CategoryCreatePage = () => {
                             <div className="border-gray-900/10 pb-4">
                                 <div className="mt-4">
                                     <div className="my-4">
-                                        <label htmlFor="name"
-                                               className="block text-sm font-medium leading-6 text-gray-900">
-                                            Назва
-                                        </label>
-                                        <div className="mt-2">
-                                            <input
-                                                id="name"
-                                                name="name"
-                                                type="text"
-                                                autoComplete="email"
-                                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                            />
-                                        </div>
+                                        <Form.Item name='name' label="Назва" rules={[{ required: true }]}>
+                                            <Input />
+                                        </Form.Item>
                                     </div>
                                     <div className="my-4">
-                                        <label htmlFor="cover-photo"
-                                               className="block text-sm font-medium leading-6 text-gray-900">
-                                            Оберіть фото
-                                        </label>
-                                        <div
-                                            className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                                            <div className="text-center">
-                                                <PhotoIcon aria-hidden="true"
-                                                           className="mx-auto h-12 w-12 text-gray-300"/>
-                                                <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                                                    <label
-                                                        htmlFor="file-upload"
-                                                        className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                                                    >
-                                                        <span>Upload a file</span>
-                                                        <input id="file-upload" name="file-upload" type="file"
-                                                               className="sr-only"/>
-                                                    </label>
-                                                    <p className="pl-1">or drag and drop</p>
+                                        <Form.Item
+                                            label="Оберіть фото"
+                                            valuePropName="file"
+                                            name="file"
+                                            // getValueFromEvent={normFile}
+                                            getValueFromEvent={(e: UploadChangeParam) => {
+                                                const image = e?.fileList[0] as any;
+                                                return image?.originFileObj;
+                                            }}
+                                            rules={[{ required: true }]}>
+                                            <Upload
+                                                listType="picture-card"
+                                                beforeUpload={() => false}
+                                                accept="image/png, image/jpeg, image/webp"
+                                                maxCount={1}
+                                                onPreview={(file: UploadFile) => {
+                                                    if (!file.url && !file.preview) {
+                                                        file.preview = URL.createObjectURL(file.originFileObj as RcFile);
+                                                    }
+
+                                                    setPreviewImage(file.url || (file.preview as string));
+                                                    setPreviewOpen(true);
+                                                    setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1));
+                                                }}
+
+                                            >
+                                                <button style={{ border: 0, padding: 0, background: 'transparent' }} type="button" />
+                                                <div className='d-flex flex-column align-items-center'>
+                                                    <PlusOutlined />
+                                                    <span>Upload</span>
                                                 </div>
-                                                <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to
-                                                    10MB</p>
-                                            </div>
-                                        </div>
+
+                                            </Upload>
+                                        </Form.Item>
                                     </div>
                                     <div className="my-4">
-                                        <label htmlFor="about"
-                                               className="block text-sm font-medium leading-6 text-gray-900">
-                                            Опис
-                                        </label>
-                                        <div className="mt-2">
-                                            <textarea
-                                                id="about"
-                                                name="about"
-                                                rows={3}
-                                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                defaultValue={''}
-                                            />
-                                        </div>
+                                        <Form.Item name='description' label="Опис">
+                                            <Input.TextArea />
+                                        </Form.Item>
                                     </div>
                                 </div>
                             </div>
@@ -91,10 +128,12 @@ const CategoryCreatePage = () => {
                                 Save
                             </button>
                         </div>
-                    </form>
+                    </Form>
                 </div>
             </div>
-
+            <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={() => setPreviewOpen(false)}>
+                <img alt="example" style={{width: '100%'}} src={previewImage}/>
+            </Modal>
         </>
     );
 }

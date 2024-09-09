@@ -1,13 +1,17 @@
 package org.example.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 //import java.util.Date;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name="tbl_categories")
 public class CategoryEntity {
@@ -26,6 +30,6 @@ public class CategoryEntity {
     @Column(name="date_created")
     private LocalDateTime creationTime;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
     private List<ProductEntity> products;
 }

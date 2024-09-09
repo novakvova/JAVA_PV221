@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,9 +18,6 @@ public class ProductEntity {
 
     @Column(length = 200, nullable = false)
     private String name;
-
-    @Column(length = 200)
-    private String image;
 
     @Column(length = 4000)
     private String description;
@@ -36,4 +34,7 @@ public class ProductEntity {
     @ManyToOne
     @JoinColumn(name="category_id", nullable = false)
     private CategoryEntity category;
+
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+    private List<ProductImageEntity> productImages;
 }

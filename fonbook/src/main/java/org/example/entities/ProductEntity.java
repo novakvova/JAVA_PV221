@@ -1,0 +1,39 @@
+package org.example.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name="tbl_products")
+public class ProductEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(length = 200, nullable = false)
+    private String name;
+
+    @Column(length = 200)
+    private String image;
+
+    @Column(length = 4000)
+    private String description;
+
+    @Column(name="date_created")
+    private LocalDateTime creationTime;
+
+    @Column(nullable = false,precision = 2)
+    private double price;
+
+    @Column(nullable = false,precision = 2)
+    private double discount;
+
+    @ManyToOne
+    @JoinColumn(name="category_id", nullable = false)
+    private CategoryEntity category;
+}

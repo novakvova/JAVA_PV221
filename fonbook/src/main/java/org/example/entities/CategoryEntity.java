@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 //import java.util.Date;
 
 @Data
@@ -24,4 +25,7 @@ public class CategoryEntity {
 
     @Column(name="date_created")
     private LocalDateTime creationTime;
+
+    @OneToMany(mappedBy = "category")
+    private List<ProductEntity> products;
 }

@@ -103,4 +103,11 @@ public class FileSystemStorageService implements StorageService {
         }
         return ""; // Return an empty string if no extension is found
     }
+
+    @Override
+    public void deleteImages(Iterable<String> imageNames) throws IOException {
+        for(String name:imageNames){
+            deleteImage(name);
+        }
+    }
 }

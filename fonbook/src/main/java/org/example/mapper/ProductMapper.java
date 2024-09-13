@@ -1,10 +1,8 @@
 package org.example.mapper;
 
 import org.example.entities.ProductEntity;
-import org.example.models.product.ProductCreationModel;
-import org.example.models.product.ProductDto;
-import org.example.models.product.ProductItemDTO;
-import org.example.models.product.ProductUpdateModel;
+import org.example.entities.ProductImageEntity;
+import org.example.models.product.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -17,6 +15,10 @@ public interface ProductMapper {
     ProductItemDTO ProductItemDTOByProduct(ProductEntity product);
 
     ProductEntity fromCreationModel(ProductCreationModel productModel);
+
+    @Mapping(target = "productId", source = "product.id")
+    ProductImageDto toDtoImageDto(ProductImageEntity image);
+
     @Mapping(target = "productImages", ignore = true)
     ProductEntity fromUpdateModel(ProductUpdateModel productModel);
     @Mapping(target = "categoryId", source = "category.id")

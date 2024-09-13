@@ -28,7 +28,7 @@ public class ProductImageEntity {
 
     private boolean isDelete;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="product_id", nullable = false)
     private ProductEntity product;
 }

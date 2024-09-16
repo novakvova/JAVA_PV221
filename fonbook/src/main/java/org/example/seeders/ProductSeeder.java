@@ -43,7 +43,8 @@ public class ProductSeeder implements CommandLineRunner {
                 imagesFutures.add(
                         CompletableFuture.supplyAsync(() -> {
                             try {
-                                return storageService.saveImage("https://picsum.photos/300/300", FileFormats.WEBP);
+//                                return storageService.saveImage("https://picsum.photos/300/300", FileFormats.WEBP);
+                                return storageService.saveImage("https://loremflickr.com/800/600/kyiv,girl/all", FileFormats.WEBP);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }

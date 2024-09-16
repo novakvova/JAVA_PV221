@@ -22,31 +22,16 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 public class StorageService implements IStorageService {
-    private final Path filesDirPath,imageDirPath;
-    private final String filesDir = "src/main/resources/public/files";
-    private final String imagesDir = "src/main/resources/public/images";
+    private final Path rootLocation;
     private final int [] sizes = {32,150,300,600,1200};
-    public StorageService() throws IOException {
-        filesDirPath = Paths.get(filesDir);
-        imageDirPath = Paths.get(imagesDir);
-        if(!Files.exists(filesDirPath)){
-            try {
-                Files.createDirectories(filesDirPath);
-            }
-            catch (IOException e) {
-                throw new StorageException("Could not initialize storage", e);
-            }
 
-        }
-        if(!Files.exists(imageDirPath)){
-            try {
-                Files.createDirectories(imageDirPath);
-            }
-            catch (IOException e) {
-                throw new StorageException("Could not initialize storage", e);
-            }
-
-        }
+    @Override
+    public void init() throws IOException {
+        if(!Files.exists(rootLocation))
+            Files.createDirectory(rootLocation);
+    }
+    public StorageService(StorageProperties properties) throws IOException {
+        this.rootLocation = Paths.get(properties.getLocation());
     }
 
     @Override
@@ -59,9 +44,9 @@ public class StorageService implements IStorageService {
             String extension  =  FilenameUtils.getExtension(originalName);
             String fileName = java.util.UUID.randomUUID().toString() + "." + extension;
 
-            Path destinationFile = this.filesDirPath.resolve(fileName)
+            Path destinationFile = this.rootLocation.resolve(fileName)
                     .normalize().toAbsolutePath();
-            if (!destinationFile.getParent().equals(this.filesDirPath.toAbsolutePath())) {
+            if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
                   throw new StorageException(
                         "Cannot store file outside current directory.");
             }
@@ -80,7 +65,7 @@ public class StorageService implements IStorageService {
     @Override
     public void deleteFile(String fileName) {
         if(fileName != null && !fileName.isEmpty()){
-            Path filePath = filesDirPath.resolve(fileName);
+            Path filePath = rootLocation.resolve(fileName);
             try {
                 Files.deleteIfExists(filePath);
             }
@@ -108,7 +93,7 @@ public class StorageService implements IStorageService {
         String ext = format.name().toLowerCase();
         String randomFileName = UUID.randomUUID().toString()+"."+ext;
         for (var size : sizes) {
-            String fileSave = imagesDir +"/"+size+"_"+randomFileName;
+            String fileSave = rootLocation +"/"+size+"_"+randomFileName;
             Thumbnails.of(bufferedImage).size(size, size).outputFormat(ext).toFile(fileSave);
         }
         return randomFileName;
@@ -119,7 +104,7 @@ public class StorageService implements IStorageService {
         if(imageName != null && !imageName.isEmpty()){
             for(int size:sizes){
                 String name = size + "_" + imageName;
-                Path imagePath = imageDirPath.resolve(name);
+                Path imagePath = rootLocation.resolve(name);
                 try {
                     Files.deleteIfExists(imagePath);
                 }

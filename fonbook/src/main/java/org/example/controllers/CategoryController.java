@@ -1,11 +1,11 @@
 package org.example.controllers;
 
 import jakarta.validation.Valid;
-import org.example.exception.InvoiceNotFoundException;
-import org.example.models.category.CategoryCreateDTO;
-import org.example.models.category.CategoryDto;
-import org.example.models.category.CategoryResponse;
-import org.example.service.ICategoryService;
+import org.example.dtos.CategoryDto;
+import org.example.exceptions.InvoiceNotFoundException;
+import org.example.interfaces.ICategoryService;
+import org.example.models.CategoryCreationModel;
+import org.example.models.PaginationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +20,13 @@ public class CategoryController {
     @Autowired
     private ICategoryService categoryService;
 
-    @PostMapping(value = "", consumes = "multipart/form-data")
-    public ResponseEntity<String> saveCategory(@ModelAttribute CategoryCreateDTO categoryModel) {
+    @PostMapping(value = "/create", consumes = "multipart/form-data")
+    public ResponseEntity<String> saveCategory( @ModelAttribute CategoryCreationModel categoryModel) {
 //        if (bindingResult.hasErrors()) {
 //            return ResponseEntity.badRequest().body(bindingResult.getAllErrors().toString());
 //        }
         try{
-            Integer id  = categoryService.saveCategory(categoryModel);
+            Long id  = categoryService.saveCategory(categoryModel);
             return ResponseEntity.ok().body(id.toString());
         }catch(Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -34,24 +34,29 @@ public class CategoryController {
     }
 
     @GetMapping("/get/{page}/{size}/{name}")
-    public CategoryResponse getAllInvoices(@PathVariable int page, @PathVariable int size, @PathVariable String name) {
+    public PaginationResponse<CategoryDto> getCategoriesByName(@PathVariable int page, @PathVariable int size, @PathVariable String name) {
         return categoryService.getCategoryByName(page,size,name);
     }
 
+    @GetMapping("/get/{page}/{size}")
+    public PaginationResponse<CategoryDto> getCategories(@PathVariable int page, @PathVariable int size) {
+        return categoryService.getCategories(page,size);
+    }
+
     @GetMapping("/get/{id}")
-    public ResponseEntity<CategoryDto> getInvoiceById(@PathVariable Integer id) {
+    public ResponseEntity<CategoryDto> getInvoiceById(@PathVariable Long id) {
         CategoryDto categoryDto = categoryService.getCategoryById(id);
         return categoryDto != null ? ResponseEntity.ok().body(categoryDto)
                 : ResponseEntity.notFound().build();
     }
 
     @PutMapping(value = "/update",consumes = "multipart/form-data")
-    public ResponseEntity<String> updateInvoice(@Valid @ModelAttribute CategoryCreateDTO  categoryModel , BindingResult bindingResult) {
+    public ResponseEntity<String> updateInvoice( @Valid @ModelAttribute CategoryCreationModel categoryModel ,BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors().toString());
         }
         try{
-            return categoryService.updateCategory(categoryModel) ? ResponseEntity.ok().body(Integer.toString(categoryModel.getId()))
+            return categoryService.updateCategory(categoryModel) ? ResponseEntity.ok().body(categoryModel.getId().toString())
                     : ResponseEntity.badRequest().body("Invalid invoice id");
         }
         catch (Exception e){
@@ -60,12 +65,12 @@ public class CategoryController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteInvoice(@PathVariable Integer id) {
+    public ResponseEntity<String> deleteInvoice(@PathVariable Long id) {
         try {
             return  categoryService.deleteCategoryById(id) ?  ResponseEntity.ok().body(null)
                     :  ResponseEntity.badRequest().body("Invalid invoice id");
         } catch (InvoiceNotFoundException | IOException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -7,7 +7,7 @@ export const formPostConfig = {
 export const postBodyConfig = {
     headers: {
         'Content-type': 'application/json',
-        Accept: 'application/json'
+         Accept: 'application/json'
     }
 }
 
@@ -21,10 +21,10 @@ export const paginatorConfig = {
         showTotal: (total:number, range:number[]) =>
             <div className="d-flex gap-2">
                 <span className=" fw-bold"> { range[0]} </span>
-                < span > -</span>
-                < span className=" fw-bold" > { range[1]} </span>
-                < span > із </span>
-                < span className=" fw-bold" > { total } </span>
-            </div>
+                    < span > -</span>
+                    < span className=" fw-bold" > { range[1]} </span>
+                    < span > із </span>
+                    < span className=" fw-bold" > { total } </span>
+                    </div>
     },
 }

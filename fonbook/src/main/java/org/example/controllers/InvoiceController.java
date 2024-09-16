@@ -1,100 +1,72 @@
 package org.example.controllers;
 
-import org.example.exception.InvoiceNotFoundException;
-import org.example.entities.Invoice;
-import org.example.models.InvoiceCreateModel;
-import org.example.service.IInvoiceService;
+import jakarta.validation.Valid;
+import org.example.dtos.InvoiceDto;
+import org.example.exceptions.InvoiceNotFoundException;
+import org.example.interfaces.IInvoiceService;
+import org.example.models.InvoiceCreationModel;
+import org.example.models.PaginationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
-@Controller
-@RequestMapping("/invoice")
+@RestController
+@RequestMapping(value = "api/invoice",produces = "application/json")
+//@CrossOrigin(origins={
+// "http://tacocloud:8080",
+// "http://tacocloud.com"})
 public class InvoiceController {
 
     @Autowired
-    private IInvoiceService service;
+    private IInvoiceService invoiceService;
 
-    @GetMapping("/")
-    public String showHomePage() {
-        return "homePage";
-    }
-
-    @GetMapping("/register")
-    public String showRegistration() {
-        return "registerInvoicePage";
-    }
-
-    @PostMapping("/save")
-    public String saveInvoice(
-            @ModelAttribute InvoiceCreateModel model,
-          //  Model model,
-            RedirectAttributes attributes
-    ) {
-//        service.saveInvice(model);
-        Long id = service.saveInvice(model).getId();
-
-        attributes.addAttribute("message", "Record with id : '"+id+"' is saved successfully !");
-        return "redirect:getAllInvoices";
-    }
-
-    @GetMapping("/getAllInvoices")
-    public String getAllInvoices(
-            @RequestParam(value = "message", required = false) String message,
-            Model model
-    ) {
-        var invoices= service.getAllInvoices();
-        model.addAttribute("list", invoices);
-        model.addAttribute("message", message);
-        return "allInvoicesPage";
-    }
-
-    @GetMapping("/edit")
-    public String getEditPage(
-            Model model,
-            RedirectAttributes attributes,
-            @RequestParam Long id
-    ) {
-        String page = null;
-        try {
-            Invoice invoice = service.getInvoiceById(id);
-            model.addAttribute("invoice", invoice);
-            page="editInvoicePage";
-        } catch (InvoiceNotFoundException e) {
-            e.printStackTrace();
-            attributes.addAttribute("message", e.getMessage());
-            page="redirect:getAllInvoices";
+    @PostMapping(value = "/create", consumes = "multipart/form-data")
+    public ResponseEntity<String> saveInvoice(@Valid @ModelAttribute InvoiceCreationModel invoiceModel,BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors().toString());
         }
-        return page;
-    }
-
-    @PostMapping("/update")
-    public String updateInvoice(
-            @ModelAttribute Invoice invoice,
-            RedirectAttributes attributes
-    ) {
-        service.updateInvoice(invoice);
-        Long id = invoice.getId();
-        attributes.addAttribute("message", "Invoice with id: '"+id+"' is updated successfully !");
-        return "redirect:getAllInvoices";
-    }
-
-    @GetMapping("/delete")
-    public String deleteInvoice(
-            @RequestParam Long id,
-            RedirectAttributes attributes
-    ) {
-        try {
-            service.deleteInvoiceById(id);
-            attributes.addAttribute("message", "Invoice with Id : '"+id+"' is removed successfully!");
-        } catch (InvoiceNotFoundException e) {
-            e.printStackTrace();
-            attributes.addAttribute("message", e.getMessage());
+        try{
+            return ResponseEntity.ok().body(invoiceService.saveInvoice(invoiceModel).toString());
+        }catch(Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
-        return "redirect:getAllInvoices";
+    }
+
+    @GetMapping("/get/{page}/{size}")
+    public PaginationResponse<InvoiceDto> getAllInvoices(@PathVariable int page, @PathVariable int size) {
+         return invoiceService.getInvoices(page,size);
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<InvoiceDto> getInvoiceById(@PathVariable Long id) {
+        InvoiceDto invoiceDto = invoiceService.getInvoiceById(id);
+        return invoiceDto != null ? ResponseEntity.ok().body(invoiceDto)
+                                  : ResponseEntity.notFound().build();
+    }
+
+    @PutMapping(value = "/update",consumes = "multipart/form-data")
+    public ResponseEntity<String> updateInvoice( @Valid @ModelAttribute InvoiceCreationModel invoiceModel ,BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors().toString());
+        }
+        try{
+            return invoiceService.updateInvoice(invoiceModel) ? ResponseEntity.ok().body(invoiceModel.getId().toString())
+                                                              : ResponseEntity.badRequest().body("Invalid invoice id");
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteInvoice(@PathVariable Long id) {
+        try {
+          return  invoiceService.deleteInvoiceById(id) ?  ResponseEntity.ok().body(null)
+                                                       :  ResponseEntity.badRequest().body("Invalid invoice id");
+        } catch (InvoiceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -1,19 +1,18 @@
 package org.example.seeders;
 
 import com.github.javafaker.Faker;
-import org.example.entities.CategoryEntity;
-import org.example.entities.ProductEntity;
-import org.example.entities.ProductImageEntity;
-import org.example.repo.CategoryRepository;
-import org.example.storage.FileSaveFormat;
-import org.example.storage.StorageService;
+import org.example.entities.Category;
+import org.example.entities.Product;
+import org.example.entities.ProductImage;
+import org.example.interfaces.ICategoryRepository;
+import org.example.interfaces.IStorageService;
+import org.example.models.FileFormats;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -23,10 +22,10 @@ import java.util.concurrent.Executors;
 @Component
 public class ProductSeeder implements CommandLineRunner {
 
-    private final CategoryRepository categoryRepository;
-    private final StorageService storageService;
+    private final ICategoryRepository categoryRepository;
+    private final IStorageService storageService;
     private final Faker faker = new Faker();
-    public ProductSeeder(StorageService storageService,CategoryRepository categoryRepository) {
+    public ProductSeeder(IStorageService storageService,ICategoryRepository categoryRepository) {
         this.storageService = storageService;
         this.categoryRepository = categoryRepository;
     }
@@ -35,17 +34,16 @@ public class ProductSeeder implements CommandLineRunner {
     public void run(String... args) throws IOException {
         if (categoryRepository.count() == 0) {
             int categoryCount = 10;
-            int min = 3;
-            int max = 5;
             int productsPerCategoryCount = 5;
-            int imageCount = categoryCount * (1 + (productsPerCategoryCount * max));
+            int imagesPerProductCount = 3;
+            int imageCount = categoryCount * (1 + (productsPerCategoryCount * imagesPerProductCount));
             ExecutorService executor = Executors.newFixedThreadPool(20);
             List<CompletableFuture<String>> imagesFutures = new ArrayList<>();
             for (int i = 0; i < imageCount; i++) {
                 imagesFutures.add(
                         CompletableFuture.supplyAsync(() -> {
                             try {
-                                return storageService.saveImage("https://picsum.photos/300/300", FileSaveFormat.WEBP);
+                                return storageService.saveImage("https://picsum.photos/300/300", FileFormats.WEBP);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -62,13 +60,13 @@ public class ProductSeeder implements CommandLineRunner {
                         .map(CompletableFuture::join)
                         .toList();
                 executor.shutdown();
-                List<CategoryEntity> categories = new ArrayList<>();
+                List<Category> categories = new ArrayList<>();
                 int imageIndex = 0;
 
                 for (int i = 0; i < categoryCount; i++) {
                     // Створюємо нову категорію
-                    CategoryEntity category = new CategoryEntity(
-                            0,
+                    Category category = new Category(
+                            null,
                             faker.commerce().productName(),
                             imagesUrls.get(imageIndex++),
                             faker.lorem().sentence(10),
@@ -76,10 +74,10 @@ public class ProductSeeder implements CommandLineRunner {
                             new ArrayList<>()
                     );
 
-                    List<ProductEntity> products = new ArrayList<>();
+                    List<Product> products = new ArrayList<>();
                     for (int j = 0; j < productsPerCategoryCount; j++) {
                         // Створюємо новий продукт
-                        ProductEntity product = new ProductEntity(
+                        Product product = new Product(
                                 null,
                                 faker.commerce().productName(),
                                 faker.lorem().sentence(10),
@@ -90,24 +88,20 @@ public class ProductSeeder implements CommandLineRunner {
                                 new ArrayList<>()
                         );
 
-
-                        // Generate random integer between min (inclusive) and max (inclusive)
-                        int randomMax = (int)(Math.random() * ((max - min) + 1)) + min;
-
-                        List<ProductImageEntity> images = new ArrayList<>();
-                        for (int k = 0; k < randomMax; k++) {
+                        List<ProductImage> images = new ArrayList<>();
+                        for (int k = 0; k < imagesPerProductCount; k++) {
                             // Використовуємо наступне зображення для продукту
-                            images.add(new ProductImageEntity(
+                            images.add(new ProductImage(
                                     null,
                                     imagesUrls.get(imageIndex++),
                                     k,
-                                    new Date(),
+                                    LocalDateTime.now(),
                                     false,
                                     product
                             ));
                         }
 
-                        product.setProductImages(images);
+                        product.setImages(images);
                         products.add(product);
                     }
 
@@ -127,3 +121,4 @@ public class ProductSeeder implements CommandLineRunner {
         }
     }
 }
+

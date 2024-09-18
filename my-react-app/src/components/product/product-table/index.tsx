@@ -1,7 +1,7 @@
 import { Button, Image, Input, message, Pagination, Space, Table, TableColumnsType, TableColumnType, TableProps } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { ICategory } from '../../../models/Category';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { paginatorConfig } from '../../../helpers/constants';
 import { APP_ENV } from '../../../env';
 import { IProduct } from '../../../models/Product';
@@ -10,13 +10,12 @@ import { IProductImage } from '../../../models/ProductImage';
 import { SearchData } from '../../../models/SearchData';
 import { categoryService } from '../../../services/categoryService';
 import { SearchOutlined } from '@ant-design/icons';
+import { getQueryString } from '../../../helpers/common-methods';
 
 interface filterData {
   text: string,
   value: string
 }
-
-
 
 const imageFolder = `${APP_ENV.SERVER_HOST}${APP_ENV.IMAGES_FOLDER}`
 const ProductTable: React.FC = () => {
@@ -25,62 +24,63 @@ const ProductTable: React.FC = () => {
   const [data, setData] = useState<IProduct[]>()
   const [filters, setFilters] = useState<filterData[]>([])
   const [searchText, setSearchText] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams('');
   const mainElement = document.querySelector('main') as HTMLElement;
 
 
   const [total, setTotal] = useState<number>(0)
   const [search, setSearch] = useState<SearchData>({
-    page: paginatorConfig.pagination.defaultCurrent,
-    size: paginatorConfig.pagination.defaultPageSize,
-    name: '',
-    description: '',
-    sort: defaultSortTable,
-    categories: undefined,
-    sortDir: ''
+    page: Number(searchParams.get("page")) || paginatorConfig.pagination.defaultCurrent,
+    size: Number(searchParams.get("size")) || paginatorConfig.pagination.defaultPageSize,
+    name: searchParams.get("name") || '',
+    description: searchParams.get("description") || '',
+    sort: searchParams.get("sort") || defaultSortTable,
+    categories: searchParams.get("categories") ? (JSON.parse(searchParams.get("categories") || "") as string[]) :  undefined,
+    sortDir: searchParams.get("sortDir") || ''
   })
 
 
   const getColumnSearchProps = (dataIndex: string): TableColumnType<IProduct> => ({
     filterDropdown: ({ close }) => (
-      <div style={{ padding: 8 }} >
-        <Input
-          value={searchText}
-          placeholder={`Search ${dataIndex}`}
-          onPressEnter={() => handleSearch(dataIndex)}
-          onChange={(e) => { setSearchText(e.target.value) }}
-          style={{ marginBottom: 8, display: 'block' }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Search
-          </Button>
-          <Button
-            onClick={() => handleReset(dataIndex)}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Reset
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              close();
-            }}
-          >
-            close
-          </Button>
-        </Space>
-      </div>
+        <div style={{ padding: 8 }} >
+          <Input
+              value={searchText}
+              placeholder={`Search ${dataIndex}`}
+              onPressEnter={() => handleSearch(dataIndex)}
+              onChange={(e) => { setSearchText(e.target.value) }}
+              style={{ marginBottom: 8, display: 'block' }}
+          />
+          <Space>
+            <Button
+                type="primary"
+                onClick={() => handleSearch(dataIndex)}
+                icon={<SearchOutlined />}
+                size="small"
+                style={{ width: 90 }}
+            >
+              Search
+            </Button>
+            <Button
+                onClick={() => handleReset(dataIndex)}
+                size="small"
+                style={{ width: 90 }}
+            >
+              Reset
+            </Button>
+            <Button
+                type="link"
+                size="small"
+                onClick={() => {
+                  close();
+                }}
+            >
+              close
+            </Button>
+          </Space>
+        </div>
     ),
     filterIcon: (filtered: boolean) => (
-      <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
     ),
     onFilterDropdownOpenChange: (open: boolean) => {
       if (open) {
@@ -136,10 +136,10 @@ const ProductTable: React.FC = () => {
       key: 'creationTime',
       dataIndex: 'creationTime',
       render: (date: string) =>
-        <div className='text-center d-flex flex-column gap-1'>
-          <span>{date.slice(0, 10)}</span>
-          <span>{date.slice(11, 19)}</span>
-        </div>,
+          <div className='text-center d-flex flex-column gap-1'>
+            <span>{date.slice(0, 10)}</span>
+            <span>{date.slice(11, 19)}</span>
+          </div>,
       width: 110,
       sorter: true,
       filteredValue: null
@@ -164,16 +164,16 @@ const ProductTable: React.FC = () => {
       title: 'Actions',
       key: 'action',
       render: (element: ICategory) =>
-        <Space>
-          <Button onClick={() => deleteCategory(element.id)} danger type="primary">Delete</Button>
-          <Button onClick={() => navigate(`/create-product?id=${element.id}`)} type='primary'>Edit</Button>
-        </Space>
+          <Space>
+            <Button onClick={() => deleteCategory(element.id)} danger type="primary">Delete</Button>
+            <Button onClick={() => navigate(`/create-product?id=${element.id}`)} type='primary'>Edit</Button>
+          </Space>
     },
   ];
 
   useEffect(()=>{
     if(mainElement !== null){ mainElement.scrollTo({ top: 0, behavior: 'smooth' });}
-},[data])
+  },[data])
 
   useEffect(() => {
     (async () => {
@@ -181,7 +181,9 @@ const ProductTable: React.FC = () => {
       if (result.status == 200) {
         const flt = result.data.itemsList.map(x => ({ value: x.name.toLocaleLowerCase(), text: x.name }))
         setFilters(flt);
-        setSearch({ ...search, categories: flt.map(x => x.value) })
+        if(!search.categories){
+          setSearch({ ...search, categories: flt.map(x => x.value) })
+        }
       }
     })()
   }, [])
@@ -190,13 +192,13 @@ const ProductTable: React.FC = () => {
   useEffect(() => {
     if (search.categories) {
       (async () => {
+        setSearchParams(getQueryString(search))
         await getData()
       })()
     }
   }, [search]);
 
   const getData = async () => {
-    console.log(search)
     const result = await productService.search(search)
     if (result.status == 200) {
       setData(result.data.itemsList)
@@ -251,29 +253,29 @@ const ProductTable: React.FC = () => {
   }
 
   return (
-    <div className=' mx-auto'  >
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        pagination={false}
-        onChange={onChange}
-      />
-      {total > 0 &&
-        <Pagination
-          align="center"
-          showSizeChanger
-          showQuickJumper
-          pageSizeOptions={paginatorConfig.pagination.pageSizeOptions}
-          locale={paginatorConfig.pagination.locale}
-          showTotal={paginatorConfig.pagination.showTotal}
-          current={search.page}
-          total={total}
-          pageSize={search.size}
-          onChange={onPaginationChange}
-          className='mt-4' />
-      }
-    </div>
+      <div className=' mx-auto'  >
+        <Table
+            columns={columns}
+            dataSource={data}
+            rowKey="id"
+            pagination={false}
+            onChange={onChange}
+        />
+        {total > 0 &&
+            <Pagination
+                align="center"
+                showSizeChanger
+                showQuickJumper
+                pageSizeOptions={paginatorConfig.pagination.pageSizeOptions}
+                locale={paginatorConfig.pagination.locale}
+                showTotal={paginatorConfig.pagination.showTotal}
+                current={search.page}
+                total={total}
+                pageSize={search.size}
+                onChange={onPaginationChange}
+                className='mt-4' />
+        }
+      </div>
   )
 }
 

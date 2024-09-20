@@ -18,10 +18,11 @@ RUN npm run build
 
 # Виберіть образ для продакшн
 FROM nginx:alpine
-
 # Скопіюйте побудовані файли в каталог для сервера
 COPY --from=build /app/dist /usr/share/nginx/html
-
+# Скопіюйте nginx налаштування в каталог для сервера
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d
 # Відкрийте порт для сервера
 EXPOSE 80
 

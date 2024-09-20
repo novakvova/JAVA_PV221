@@ -1,6 +1,7 @@
 package org.example.seeders;
 
 import com.github.javafaker.Faker;
+import lombok.AllArgsConstructor;
 import org.example.entities.Category;
 import org.example.entities.Product;
 import org.example.entities.ProductImage;
@@ -20,19 +21,17 @@ import java.util.concurrent.Executors;
 
 
 @Component
+@AllArgsConstructor
 public class ProductSeeder implements CommandLineRunner {
 
     private final ICategoryRepository categoryRepository;
     private final IStorageService storageService;
     private final Faker faker = new Faker();
-    public ProductSeeder(IStorageService storageService,ICategoryRepository categoryRepository) {
-        this.storageService = storageService;
-        this.categoryRepository = categoryRepository;
-    }
 
     @Override
     public void run(String... args) throws IOException {
         if (categoryRepository.count() == 0) {
+            System.out.println("Сид бази даних!");
             int categoryCount = 10;
             int productsPerCategoryCount = 5;
             int imagesPerProductCount = 3;
@@ -43,8 +42,7 @@ public class ProductSeeder implements CommandLineRunner {
                 imagesFutures.add(
                         CompletableFuture.supplyAsync(() -> {
                             try {
-//                                return storageService.saveImage("https://picsum.photos/300/300", FileFormats.WEBP);
-                                return storageService.saveImage("https://loremflickr.com/800/600/kyiv,girl/all", FileFormats.WEBP);
+                                return storageService.saveImage("https://picsum.photos/300/300", FileFormats.WEBP);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }

@@ -13,11 +13,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html{height: 100%;}
+html{
+  height: 100%;
+}
 
 body {
   margin: 0;
   height: inherit;
+  overflow: hidden;
 }
 
 header {
@@ -29,9 +32,11 @@ header {
 }
 
 main {
+  background-color: rgb(248, 248, 248);
   padding: 20px 0 20px 0;
-  height: 85.3vh;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-grow: 1;
 }
 
 footer {
@@ -39,6 +44,27 @@ footer {
   color: white;
   padding: 10px;
   text-align: center;
+}
+
+.buttons-block{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap:15px;
+}
+.buttons-block button{
+  width: 150px;
+}
+
+.product-view {
+  width: 100%;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.product-view:hover {
+  transform: scale(1.005);
+  box-shadow: 0px 0px 6px 3px rgba(0, 0, 0, 0.1);
 }
 
 

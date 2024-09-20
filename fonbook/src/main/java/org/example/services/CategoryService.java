@@ -1,5 +1,6 @@
 package org.example.services;
 
+import lombok.RequiredArgsConstructor;
 import org.example.dtos.CategoryDto;
 import org.example.entities.Category;
 import org.example.exceptions.CategoryException;
@@ -21,14 +22,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryService implements ICategoryService {
-
-    @Autowired
-    private ICategoryRepository repo;
-    @Autowired
-    private IStorageService storageService;
-    @Autowired(required=true)
-    private CategoryMapper mapper;
+    private final ICategoryRepository repo;
+    private final IStorageService storageService;
+    private final CategoryMapper mapper;
 
     @Override
     public Long saveCategory(CategoryCreationModel categoryModel) {
@@ -52,9 +50,9 @@ public class CategoryService implements ICategoryService {
     }
 
     public PaginationResponse<CategoryDto> getCategories(int page,int size) {
-        size = size==0?Integer.MAX_VALUE:size;
+        size = size == 0?Integer.MAX_VALUE:size;
         PageRequest pageRequest = PageRequest.of(
-                page, size,Sort.by("id").and(Sort.by("name")));
+                page, size,Sort.by("id"));
         Page<Category> categoriesPage = repo.findAll(pageRequest);
         Iterable<CategoryDto> categories = mapper.toDto(categoriesPage.getContent());
         return  new PaginationResponse<CategoryDto>(categories,categoriesPage.getTotalElements());

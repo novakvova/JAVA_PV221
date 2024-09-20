@@ -1,6 +1,7 @@
 package org.example.services;
 
 import net.coobird.thumbnailator.Thumbnails;
+import org.example.configurations.StorageProperties;
 import org.example.exceptions.StorageException;
 import org.apache.commons.io.FilenameUtils;
 import org.example.interfaces.IStorageService;
@@ -18,21 +19,23 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+
 
 @Service
 public class StorageService implements IStorageService {
-    private final Path rootLocation;
     private final int [] sizes = {32,150,300,600,1200};
+    private final Path rootLocation;
+
+    public StorageService(StorageProperties properties) throws IOException {
+        this.rootLocation = Paths.get(properties.getLocation());
+    }
 
     @Override
     public void init() throws IOException {
         if(!Files.exists(rootLocation))
             Files.createDirectory(rootLocation);
     }
-    public StorageService(StorageProperties properties) throws IOException {
-        this.rootLocation = Paths.get(properties.getLocation());
-    }
+
 
     @Override
     public String saveFile(MultipartFile file) {

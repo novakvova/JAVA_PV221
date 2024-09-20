@@ -17,10 +17,10 @@ const CategoryTable: React.FC = () => {
   const navigate = useNavigate();
   const [data, setData] = useState<ICategory[]>()
   const [searchParams, setSearchParams] = useSearchParams('');
-  const [pagination, setPagination] = useState<PagintionData>({
+  const [pagination, setPagination] = useState<PagintionData>({ 
     page: Number(searchParams.get("page")) || paginatorConfig.pagination.defaultCurrent,
     pageSize: Number(searchParams.get("pageSize")) || paginatorConfig.pagination.defaultPageSize,
-  })
+   })
   const [total, setTotal] = useState<number>(0)
   const mainElement = document.querySelector('main') as HTMLElement;
 
@@ -58,10 +58,10 @@ const CategoryTable: React.FC = () => {
       title: 'Actions',
       key: 'action',
       render: (element: ICategory) =>
-          <Space>
-            <Button onClick={() => deleteCategory(element.id)} danger type="primary">Delete</Button>
-            <Button onClick={() => navigate(`/create?id=${element.id}`)} type='primary'>Edit</Button>
-          </Space>
+        <Space>
+          <Button onClick={() => deleteCategory(element.id)} danger type="primary">Delete</Button>
+          <Button onClick={() => navigate(`create?id=${element.id}`)} type='primary'>Edit</Button>
+        </Space>
     },
   ];
 
@@ -72,8 +72,8 @@ const CategoryTable: React.FC = () => {
   useEffect(() => {
     (async () => {
       setSearchParams(getQueryString(pagination))
-      await getData()
-    })()
+       await getData()
+       })()
   }, [pagination]);
 
   const getData = async () => {
@@ -103,36 +103,36 @@ const CategoryTable: React.FC = () => {
     setPagination({ ...pagination, page: currentPage, pageSize: pageSize })
   }
   return (
-      <div className=' mx-auto w-75 '  >
-        <div className='d-flex justify-content-between'>
-          <h4 className='text-muted'>Category table</h4>
-          <Link to={'/create'}>
-            <Button type="primary">Create new category</Button>
-          </Link>
-        </div>
-
-        <Divider />
-        <Table
-            columns={columns}
-            dataSource={data}
-            rowKey="id"
-            pagination={false}
-        />
-        {total > 0 &&
-            <Pagination
-                align="center"
-                showSizeChanger
-                showQuickJumper
-                pageSizeOptions={paginatorConfig.pagination.pageSizeOptions}
-                locale={paginatorConfig.pagination.locale}
-                showTotal={paginatorConfig.pagination.showTotal}
-                current={pagination.page}
-                total={total}
-                pageSize={pagination.pageSize}
-                onChange={onPaginationChange}
-                className='mt-4' />
-        }
+    <div className=' mx-auto w-75 '  >
+      <div className='d-flex justify-content-between'>
+        <h4 className='text-muted'>Category table</h4>
+        <Link to={'create'}>
+          <Button type="primary">Create new category</Button>
+        </Link>
       </div>
+
+      <Divider />
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        pagination={false}
+      />
+      {total > 0 &&
+        <Pagination
+          align="center"
+          showSizeChanger
+          showQuickJumper
+          pageSizeOptions={paginatorConfig.pagination.pageSizeOptions}
+          locale={paginatorConfig.pagination.locale}
+          showTotal={paginatorConfig.pagination.showTotal}
+          current={pagination.page}
+          total={total}
+          pageSize={pagination.pageSize}
+          onChange={onPaginationChange}
+          className='mt-4' />
+      }
+    </div>
   )
 }
 

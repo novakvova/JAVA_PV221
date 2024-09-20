@@ -1,14 +1,12 @@
 package org.example.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,20 +22,19 @@ public class Product {
     @Column(length = 4000)
     private String description;
 
-    @Column(name="date_created")
+    @Column(name = "date_created")
     private LocalDateTime creationTime;
 
-    @Column(nullable = false,precision = 2)
+    @Column(nullable = false, precision = 2)
     private double price;
 
-    @Column(nullable = false,precision = 2)
+    @Column(nullable = false, precision = 2)
     private double discount;
 
     @ManyToOne
-    @JoinColumn(name="category_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ProductImage> images;
-
 }

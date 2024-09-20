@@ -12,6 +12,7 @@ import { categoryService } from '../../../services/categoryService';
 import { SearchOutlined } from '@ant-design/icons';
 import { getQueryString } from '../../../helpers/common-methods';
 import { FilterData } from '../../../models/FilterData';
+import {DeleteDialog} from "../../common-components/DeleteDialog.tsx";
 
 
 
@@ -163,7 +164,9 @@ const ProductTable: React.FC = () => {
       key: 'action',
       render: (element: ICategory) =>
         <Space>
-          <Button onClick={() => deleteProduct(element.id)} danger type="primary">Delete</Button>
+          <DeleteDialog title={"Ви впевнені?"}
+                        description={`Видалити продукт "${element.name}"?` }
+                        onSubmit ={() => deleteProduct(element.id)}  />
           <Button onClick={() => navigate(`create?id=${element.id}`)} type='primary'>Edit</Button>
         </Space>
     },

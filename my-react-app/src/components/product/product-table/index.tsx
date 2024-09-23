@@ -12,7 +12,8 @@ import { categoryService } from '../../../services/categoryService';
 import { SearchOutlined } from '@ant-design/icons';
 import { getQueryString } from '../../../helpers/common-methods';
 import { FilterData } from '../../../models/FilterData';
-import {DeleteDialog} from "../../common-components/DeleteDialog.tsx";
+import { DeleteDialog } from '../../common-components/DeleteDialog';
+import { DateTime } from '../../../helpers/DateTime';
 
 
 
@@ -135,10 +136,7 @@ const ProductTable: React.FC = () => {
       key: 'creationTime',
       dataIndex: 'creationTime',
       render: (date: string) =>
-        <div className='text-center d-flex flex-column gap-1'>
-          <span>{date.slice(0, 10)}</span>
-          <span>{date.slice(11, 19)}</span>
-        </div>,
+         <div className='d-flex flex-column gap-2 text-center'> {new DateTime(date).ShortDate} {new DateTime(date).FullTime}</div>,
       width: 110,
       sorter: true,
       filteredValue: null
@@ -163,12 +161,12 @@ const ProductTable: React.FC = () => {
       title: 'Actions',
       key: 'action',
       render: (element: ICategory) =>
-        <Space>
-          <DeleteDialog title={"Ви впевнені?"}
-                        description={`Видалити продукт "${element.name}"?` }
-                        onSubmit ={() => deleteProduct(element.id)}  />
+        <div className='d-flex gap-2'>
+          <DeleteDialog title={"Are you sure?"}
+            description={`Delete "${element.name}" category?`}
+            onSubmit={async () => deleteProduct(element.id)} />
           <Button onClick={() => navigate(`create?id=${element.id}`)} type='primary'>Edit</Button>
-        </Space>
+        </div>
     },
   ];
 
@@ -207,7 +205,7 @@ const ProductTable: React.FC = () => {
     }
   }
 
-  const deleteProduct = async (id: number) => {
+  const deleteProduct = async (id: number): Promise<void> => {
     const result = await productService.delete(id)
     if (result.status == 200) {
       const product = data?.find(x => x.id === id);

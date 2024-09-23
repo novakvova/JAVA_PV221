@@ -35,7 +35,7 @@ public class ProductService implements IProductService {
         try{
             Product product = mapper.fromCreationModel(productModel);
             product.setId(0L);
-            List<ProductImage> images = new ArrayList<>();
+            Set<ProductImage> images = new HashSet<>();
             int index = 0;
             LocalDateTime date = LocalDateTime.now();
             for(var file:productModel.getFiles()){
@@ -70,6 +70,15 @@ public class ProductService implements IProductService {
         PageRequest pageRequest = PageRequest.of(
                 page, size, Sort.by("id"));
         Page<Product> productsPage = repo.findAll(pageRequest);
+        Iterable<ProductDto> categories = mapper.toDto(productsPage.getContent());
+        return  new PaginationResponse<ProductDto>(categories,productsPage.getTotalElements());
+    }
+
+    @Override
+    public PaginationResponse<ProductDto> getProducts(int page, int size, Long[] ids) {
+        PageRequest pageRequest = PageRequest.of(
+                page, size, Sort.by("id"));
+        Page<Product> productsPage = repo.getProducts(ids,pageRequest);
         Iterable<ProductDto> categories = mapper.toDto(productsPage.getContent());
         return  new PaginationResponse<ProductDto>(categories,productsPage.getTotalElements());
     }
@@ -118,7 +127,7 @@ public class ProductService implements IProductService {
             Product product = mapper.fromCreationModel(productModel);
             var oldImages = new ArrayList<>(optProduct.get().getImages());
             product.setCreationTime(LocalDateTime.now());
-            List<ProductImage> newImagesList = new ArrayList<ProductImage>() ;
+            Set<ProductImage> newImagesList = new HashSet<>() ;
             if(productModel.getFiles() != null) {
                 int index = -1;
                 for (var file : productModel.getFiles()) {

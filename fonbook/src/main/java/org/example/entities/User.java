@@ -51,11 +51,17 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean isEnabled;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
+    @ManyToMany()
+    @JoinTable(name = "tbl_user_user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<UserRole> roles = new ArrayList<>();
+    private Set<UserRole> roles = new HashSet<>();
+
+    @ManyToMany()
+    @JoinTable(name = "tbl_user_favorite_product",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id"))
+    private Set<Product> favoriteProducts = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

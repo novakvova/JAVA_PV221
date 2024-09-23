@@ -1,5 +1,4 @@
 import * as React from 'react';
-import HorisontalProduct from '../product/ProductCard/HorizontalProduct';
 import { IProduct } from '../../models/Product';
 import { useEffect, useState } from 'react';
 import { productService } from '../../services/productService';
@@ -12,6 +11,7 @@ import { getQueryString } from '../../helpers/common-methods';
 import { categoryService } from '../../services/categoryService';
 import user from '../../store/userStore'
 import { observer } from 'mobx-react';
+import HorisontalProduct from "../product/ProductCard/HorizontalProduct";
 
 
 
@@ -49,8 +49,8 @@ const HomePage: React.FC = observer(() => {
           setSearch({ ...search, categories: flt.map(x => x.value) })
         }
       }
-    })()
-  }, [])
+    })()},[])
+  
 
 
   useEffect(() => {
@@ -64,6 +64,7 @@ const HomePage: React.FC = observer(() => {
 
   const getData = async () => {
     const result = await productService.search(search)
+    console.log(result.data.itemsList)
     if (result.status == 200) {
       setData(result.data.itemsList)
       setTotal(result.data.totalElements)
@@ -79,9 +80,7 @@ const HomePage: React.FC = observer(() => {
       <h1 className=''>Welcome to home page !!! </h1>
       <h3 className=' text-muted'>We found {total} product{total == 1 ? "" : "s"}</h3>
       <div className='d-flex flex-column gap-3'>
-        {
-          data?.map(x => <HorisontalProduct key={x.id} onEdit={user.isAdmin?()=>{navigate(`/products/create?id=${x.id}`)}:undefined} product={x} />)
-        }
+        { data?.map(x => <HorisontalProduct key={x.id} onEdit={user.isAdmin?()=>{navigate(`/products/create?id=${x.id}`)}:undefined} product={x} />)}
       </div>
       {total > 0 &&
         <Pagination

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import HorisontalProduct from '../product/ProductCard/horizontalProduct';
 import { IProduct } from '../../models/Product';
 import { useEffect, useState } from 'react';
 import { productService } from '../../services/productService';
@@ -13,7 +14,6 @@ import { IPaginationResponse } from '../../models/PaginarionResponse';
 import { PagintionData } from '../../models/PaginationData';
 import { storageService } from '../../services/storageService';
 import { accountService } from '../../services/accountService';
-import HorisontalProduct from "../product/ProductCard/HorizontalProduct";
 
 
 const FavoritesPage: React.FC = observer(() => {

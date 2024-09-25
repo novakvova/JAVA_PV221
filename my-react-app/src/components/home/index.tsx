@@ -1,4 +1,5 @@
 import * as React from 'react';
+import HorisontalProduct from '../product/ProductCard/horizontalProduct';
 import { IProduct } from '../../models/Product';
 import { useEffect, useState } from 'react';
 import { productService } from '../../services/productService';
@@ -11,7 +12,6 @@ import { getQueryString } from '../../helpers/common-methods';
 import { categoryService } from '../../services/categoryService';
 import user from '../../store/userStore'
 import { observer } from 'mobx-react';
-import HorisontalProduct from "../product/ProductCard/HorizontalProduct";
 
 
 
@@ -64,7 +64,6 @@ const HomePage: React.FC = observer(() => {
 
   const getData = async () => {
     const result = await productService.search(search)
-    console.log(result.data.itemsList)
     if (result.status == 200) {
       setData(result.data.itemsList)
       setTotal(result.data.totalElements)

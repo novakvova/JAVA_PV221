@@ -3,6 +3,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+.idea/
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
@@ -11,9 +13,7 @@ target/
 *.iws
 *.iml
 *.ipr
-
 uploading/
-
 ### Eclipse ###
 .apt_generated
 .classpath
@@ -22,7 +22,6 @@ uploading/
 .settings
 .springBeans
 .sts4-cache
-.idea
 
 ### NetBeans ###
 /nbproject/private/

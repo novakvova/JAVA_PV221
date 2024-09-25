@@ -17,9 +17,10 @@ FROM openjdk:17-jdk-slim
 # Set the working directory
 WORKDIR /app
 
+EXPOSE 8090
+
 # Copy the built jar file from the Maven build stage
-COPY --from=build /app/target/spring-pv221.jar ./app.jar
+COPY --from=build /app/target/javaspringapp.jar ./app.jar
 
 # Specify the command to run the application
 CMD ["java", "-jar", "app.jar"]
-

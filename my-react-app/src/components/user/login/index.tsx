@@ -8,6 +8,8 @@ import { storageService } from '../../../services/storageService';
 import user from '../../../store/userStore'
 import { addToCartAll } from '../../../store/redux/cart/redusers/CartReduser';
 import { useDispatch } from 'react-redux';
+import {GoogleLogin, GoogleOAuthProvider} from '@react-oauth/google';
+import {APP_ENV} from "../../../env";
 
 export const Login: React.FC = () => {
     const [remember, setRemember] = useState<boolean>(false);
@@ -35,8 +37,16 @@ export const Login: React.FC = () => {
         }
     }
     return (
-        <>
+        <GoogleOAuthProvider clientId={APP_ENV.CLIENT_ID}>
             <div className=' w-70 mx-auto my-4'>
+                <GoogleLogin
+                    onSuccess={credentialResponse => {
+                        console.log(credentialResponse);
+                    }}
+                    onError={() => {
+                        console.log('Login Failed');
+                    }}
+                />;
             </div>
             <div className='w-50 mx-auto'>
                 <Divider className='fs-3 border-dark-subtle mb-5' orientation="left">Логін</Divider>
@@ -94,7 +104,7 @@ export const Login: React.FC = () => {
                 </Form>
             </div>
 
-        </>
+        </GoogleOAuthProvider>
     )
 }
 

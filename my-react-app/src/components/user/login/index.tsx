@@ -96,7 +96,7 @@ export const Login: React.FC = () => {
 
                         <GoogleLogin
                             onSuccess={credentialResponse => {
-                                console.log(credentialResponse);
+                                console.log("Salo",credentialResponse);
                             }}
                             onError={() => {
                                 console.log('Login Failed');

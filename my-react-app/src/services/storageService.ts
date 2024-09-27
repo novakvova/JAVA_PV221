@@ -1,10 +1,12 @@
 import { APP_ENV } from "../env";
+import { CartProduct } from "../models/CartProduct";
 
 const accessKey = APP_ENV.ACCESS_KEY;
 const favouritesKey = APP_ENV.FAVORITES_KEY;
+const cartKey = APP_ENV.CART_KEY;
 
 export const storageService = {
-    saveToken: async (accessToken: string,session:boolean ) => {
+    saveToken: async (accessToken: string, session: boolean) => {
         if (session) {
             sessionStorage.setItem(accessKey, accessToken);
             localStorage.removeItem(accessKey);
@@ -13,7 +15,7 @@ export const storageService = {
             localStorage.setItem(accessKey, accessToken);
             sessionStorage.removeItem(accessKey);
         }
-      
+
     },
 
     getAccessToken: () => sessionStorage.getItem(accessKey) || localStorage.getItem(accessKey),
@@ -23,7 +25,7 @@ export const storageService = {
         sessionStorage.removeItem(accessKey);
     },
 
-    //-------------------------------------------------------------------------------------
+    //---------------------Favorites-------------------------------------------------
 
     isLocalFavorites: (): boolean => localStorage.getItem(favouritesKey) ? true : false,
 
@@ -42,5 +44,19 @@ export const storageService = {
         }
         localStorage.setItem(favouritesKey, JSON.stringify(favs))
     },
-    clearFavorites:() => localStorage.removeItem(favouritesKey)
+    clearFavorites: () => localStorage.removeItem(favouritesKey),
+
+    //---------------------Bascket-------------------------------------------------
+    isLocalCart: (): boolean => localStorage.getItem(cartKey) ? true : false,
+
+    getLocalCart: (): CartProduct[] => {
+        const backet = localStorage.getItem(cartKey);
+        return backet ? JSON.parse(backet) : []
+    },
+
+    setLocalCart: (cart: CartProduct[]) => {
+        localStorage.setItem(cartKey, JSON.stringify(cart))
+    },
+
+    clearCart: () => localStorage.removeItem(cartKey)
 }

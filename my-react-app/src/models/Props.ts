@@ -1,6 +1,7 @@
 import { UploadFile } from "antd"
 import { ReactElement } from "react"
 import { IProduct } from "./Product"
+import { CartProduct } from "./CartProduct"
 
 export interface ImageLoaderProps {
     files: UploadFile[]
@@ -24,7 +25,20 @@ export interface ProductViewProps {
     onEdit?:Function
 }
 
-export interface FavoriteButtonProps{
+export interface CartProductViewProps {
+    cartProduct: CartProduct
+    onDelete?: Function
+    onCountChange?:Function
+}
+
+export interface ProductButtonProps{
     product?:IProduct,
     onChange?:Function
+    hidden:boolean
 }
+
+export interface SmallCartProductProps{
+    cartProduct:CartProduct,
+    onCountClick:Function
+}
+

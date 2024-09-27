@@ -3,12 +3,19 @@ import logo from '../../../../logo.png';
 import { Menu } from "../../menu";
 import { observer } from "mobx-react";
 import user from '../../../store/userStore'
-import { DownOutlined, FlagOutlined, HeartOutlined, LogoutOutlined, SafetyCertificateOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Badge, Button, Dropdown } from "antd";
+import { DownOutlined, FlagOutlined, HeartOutlined, LogoutOutlined, SafetyCertificateOutlined, ShoppingCartOutlined, UserOutlined } from "@ant-design/icons";
+import { Avatar, Badge, Button, Dropdown, Popover } from "antd";
 import { APP_ENV } from "../../../env";
 import { storageService } from "../../../services/storageService";
 import { ReactNode, useEffect, useState } from "react";
 import '../header/header.css'
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store/redux/cart"
+import { CartProduct } from "../../../models/CartProduct";
+import { SmallCartProduct } from "../../product/ProductCard/small-cart-product-card";
+import { useDispatch } from "react-redux";
+import { clearCart, getTotalDiscount, getTotalPrice, setCount } from "../../../store/redux/cart/redusers/CartReduser";
+import { accountService } from "../../../services/accountService";
 
 interface MenuItem {
     label: ReactNode
@@ -16,11 +23,18 @@ interface MenuItem {
     icon: ReactNode
     users: string[]
 }
+
 const Header: React.FC = observer(() => {
     const navigate = useNavigate();
-
+    const cart: CartProduct[] = useSelector((state: RootState) => state.cartStore.cart);
+    const totalPrice: number = useSelector((state: RootState) => getTotalPrice(state));
+    const totalDiscount: number = useSelector((state: RootState) => getTotalDiscount(state));
+    const dispatcher = useDispatch();
     const logout = async () => {
         storageService.removeTokens();
+        if(!user.isAdmin){
+            dispatcher(clearCart());
+        }
         user.clearUserData();
         navigate('/')
     }
@@ -40,7 +54,7 @@ const Header: React.FC = observer(() => {
                 <Button type="link">{user.name} {user.surname}</Button></Link>,
             key: '0',
             icon: <Avatar src={APP_ENV.SERVER_HOST + APP_ENV.IMAGES_FOLDER + '/150_' + user.avatar} />,
-            users: ['User', 'Admin']
+            users: ['User', 'Admin'],
         },
 
         {
@@ -59,6 +73,12 @@ const Header: React.FC = observer(() => {
         }
     ]
     const [userMenuItems, setUserMenuItems] = useState<MenuItem[]>(items);
+    const onCountChange = async (count: number, id: number) => {
+         if(user.isAuthorized){
+            count > 0 ? await accountService.setCount(id,count): await accountService.removeFromCart(id);
+         }
+         dispatcher(setCount({ count, id }))
+    }
 
     return (
         <header>
@@ -70,9 +90,28 @@ const Header: React.FC = observer(() => {
 
                 <div className=' d-flex gap-5 mx-4 '>
                     {!user.isAdmin &&
-                        <Badge size="small" count={user.favCount}>
-                            <HeartOutlined className='favourite-button' onClick={() => navigate('/favorites')} />
-                        </Badge>}
+                        <div className="d-flex gap-5">
+                            <Badge size="small" count={user.favCount}>
+                                <HeartOutlined className='icon-button' onClick={() => navigate('/favorites')} />
+                            </Badge>
+                            <Badge size="small" count={cart.length}>
+                                <Popover placement="bottom" content={
+                                    cart.length > 0
+                                        ? <div className="d-flex flex-column gap-2">
+                                            <div style={{maxHeight:400}} className="d-flex flex-column gap-4 overflow-auto">
+                                                {cart.map(x => <SmallCartProduct onCountClick={onCountChange} cartProduct={x} />)}
+                                            </div>
+                                            <div className="d-flex flex-column gap-2">
+                                                <span className="text-danger fs-6">Total price: {totalPrice.toFixed(2)} .грн</span>
+                                                <span className="text-success fs-6">Discount: {totalDiscount.toFixed(2)} .грн</span>
+                                            </div>
+                                        </div>
+                                        : "Корзина порожня :("
+                                }>
+                                    <ShoppingCartOutlined className='icon-button' onClick={() => navigate('/cart')} />
+                                </Popover>
+                            </Badge>
+                        </div>}
                     {(user.isAuthorized &&
                         <Dropdown
                             menu={{ items: userMenuItems }}

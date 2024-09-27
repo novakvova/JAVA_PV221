@@ -1,5 +1,5 @@
 import * as React from 'react';
-import HorisontalProduct from '../product/ProductCard/horizontalProduct';
+import HorisontalProduct from '../product/ProductCard/horizontal-product';
 import { IProduct } from '../../models/Product';
 import { useEffect, useState } from 'react';
 import { productService } from '../../services/productService';
@@ -11,18 +11,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getQueryString } from '../../helpers/common-methods';
 import { categoryService } from '../../services/categoryService';
 import user from '../../store/userStore'
- import { observer } from 'mobx-react';
-import {PlusCircleOutlined} from "@ant-design/icons";
-import {store} from "../../store";
-import {CounterReducerActionType} from "../../store/reducers/CounterReducer.ts";
-import {useDispatch, useSelector} from "react-redux";
-// import {useDispatch} from "react-redux";
+import { observer } from 'mobx-react';
 
 
 
 const HomePage: React.FC = observer(() => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const defaultSortTable = "id"
   const [data, setData] = useState<IProduct[]>()
   const [total, setTotal] = useState<number>(0)
@@ -80,17 +74,9 @@ const HomePage: React.FC = observer(() => {
     setSearch({ ...search, page: currentPage, size: pageSize })
   }
 
-  var state = useSelector(store=>store);
-  console.log("store", state);
   return (
     <div className='w-75 f-flex flex-column gap-5  mx-auto'>
       <h1 className=''>Welcome to home page !!! </h1>
-      <div>
-        <PlusCircleOutlined className='ms-3 fs-4 text-danger' onClick={()=>{
-          console.log("Plus click");
-          dispatch({type: CounterReducerActionType.INCREMENT});
-        }}/>
-      </div>
       <h3 className=' text-muted'>We found {total} product{total == 1 ? "" : "s"}</h3>
       <div className='d-flex flex-column gap-3'>
         { data?.map(x => <HorisontalProduct key={x.id} onEdit={user.isAdmin?()=>{navigate(`/products/create?id=${x.id}`)}:undefined} product={x} />)}

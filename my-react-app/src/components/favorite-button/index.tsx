@@ -1,17 +1,16 @@
 import { AxiosResponse } from 'axios';
 import React, { useEffect, useState } from 'react'
 import user from '../../store/userStore'
-//import { accountService } from '../../services/accountService'
 import { message } from 'antd'
 import { HeartFilled, HeartOutlined } from '@ant-design/icons'
 import { observer } from 'mobx-react'
-import { FavoriteButtonProps } from '../../models/Props'
+import { ProductButtonProps } from '../../models/Props'
 import { accountService } from '../../services/accountService';
 import { storageService } from '../../services/storageService';
 
-const FavoriteButton: React.FC<FavoriteButtonProps> = observer(({ product, onChange = () => { } }) => {
 
-
+const FavoriteButton: React.FC<ProductButtonProps> = observer(({ product, onChange = () => { } }) => {
+  
     useEffect(() => {
         setFavorite(isFavorite())
     }, [user.isAuthorized])
@@ -47,7 +46,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = observer(({ product, onCha
                 }
             }
             else {
-                 storageService.toggleFavorites(product.id)
+                storageService.toggleFavorites(product.id)
             }
             favorite ? user.favCount-- : user.favCount++;
         }

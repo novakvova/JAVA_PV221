@@ -15,11 +15,30 @@ import AdminProtectedRoute from './components/protected-routes/AdminProtectedRou
 import FavoritesPage from './components/favorites';
 import user from './store/userStore'
 import { storageService } from './services/storageService';
+import { useEffect } from 'react';
+import { accountService } from './services/accountService';
+import { useDispatch } from 'react-redux';
+import { addToCartAll } from './store/redux/cart/redusers/CartReduser';
+import CartPage from './components/cart';
 
 function App() {
-  SetupInterceptors();
-  user.favCount = storageService.getLocalFavorites().length || 0;
-  user.setUserData(storageService.getAccessToken());
+  const dispatcher = useDispatch();
+  useEffect(() => {
+    (async () => {
+      SetupInterceptors();
+      user.favCount = storageService.getLocalFavorites().length || 0;
+      await user.setUserData(storageService.getAccessToken());
+      if (user.isAuthorized && !user.isAdmin) {
+        const result = await accountService.getCart();
+        if (result.status === 200) {
+          dispatcher(addToCartAll(result.data))
+          storageService.clearCart();
+        }
+      }
+    })()
+  }, [])
+
+
   return (
     <>
       <Routes>
@@ -34,6 +53,7 @@ function App() {
           <Route path="/products/create" element={
             <AdminProtectedRoute children={<ProductCreate />} />} />
           <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/cart" element={<CartPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registration" element={<Registration />} />
           <Route path="*" element={

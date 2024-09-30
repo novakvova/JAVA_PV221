@@ -6,6 +6,7 @@ import { LoginButtonProps } from '../../../models/Props';
 
 const GoogleLoginButton: React.FC<LoginButtonProps> = ({ onLogin = () => { }, title, icon }) => {
 
+    //Викликаємо AccessToken для доступу до інформації
     const login = useGoogleLogin({
         onSuccess: async (authCodeResponse) => {
             const result = await accountService.googleLogin({ token: authCodeResponse.access_token });

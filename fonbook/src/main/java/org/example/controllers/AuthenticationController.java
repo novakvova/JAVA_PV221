@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "api/auth",produces = "application/json")
@@ -22,7 +24,7 @@ public class AuthenticationController {
     public ResponseEntity<String> signUp(@ModelAttribute @Valid UserCreationModel model) {
         try{
             Long id  = authenticationService.registration(model);
-            return ResponseEntity.ok().body(id.toString());
+            return id != null? ResponseEntity.ok().body(id.toString()):ResponseEntity.badRequest().body("Error reCaptcha validation");
         }catch(Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -32,7 +34,17 @@ public class AuthenticationController {
     public  ResponseEntity<AuthenticationResponse> signIn(@ModelAttribute @Valid SignInRequest request) {
         try{
             var response  = authenticationService.signIn(request);
-            return ResponseEntity.ok().body(response);
+            return response != null ?ResponseEntity.ok().body(response):ResponseEntity.badRequest().body(null);
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PostMapping(value ="/sign-in/google")
+    public  ResponseEntity<AuthenticationResponse> signInGoogle(@RequestBody Map<String, String> request) {
+        try{
+            var response  = authenticationService.signInGoogle(request.get("token"));
+            return response != null? ResponseEntity.ok().body(response) : ResponseEntity.badRequest().body(null);
         }catch(Exception e){
             return ResponseEntity.badRequest().body(null);
         }
